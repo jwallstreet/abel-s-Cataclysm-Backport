@@ -88,6 +88,7 @@ import com.github.L_Ender.cataclysm.client.render.entity.Nameless_Sorcerer_Rende
 import com.github.L_Ender.cataclysm.client.render.entity.Netherite_Ministrosity_Renderer;
 import com.github.L_Ender.cataclysm.client.render.entity.Netherite_Monstrosity_Renderer;
 import com.github.L_Ender.cataclysm.client.render.entity.New_Netherite_Monstrosity_Renderer;
+import com.github.L_Ender.cataclysm.client.render.entity.Teddy_Bear_Renderer;
 import com.github.L_Ender.cataclysm.client.render.entity.Phantom_Arrow_Renderer;
 import com.github.L_Ender.cataclysm.client.render.entity.Phantom_Halberd_Renderer;
 import com.github.L_Ender.cataclysm.client.render.entity.Poison_Dart_Renderer;
@@ -195,6 +196,7 @@ public class ClientProxy extends CommonProxy {
         EntityRenderers.register(ModEntities.ENDER_GOLEM.get(), Ender_Golem_Renderer::new);
         EntityRenderers.register(ModEntities.NETHERITE_MONSTROSITY.get(), New_Netherite_Monstrosity_Renderer::new);
         EntityRenderers.register(ModEntities.NETHERITE_MINISTROSITY.get(), Netherite_Ministrosity_Renderer::new);
+        EntityRenderers.register(ModEntities.TEDDY_BEAR.get(), Teddy_Bear_Renderer::new);
         EntityRenderers.register(ModEntities.OLD_NETHERITE_MONSTROSITY.get(), Netherite_Monstrosity_Renderer::new);
         EntityRenderers.register(ModEntities.LAVA_BOMB.get(), Lava_Bomb_Renderer::new);
         EntityRenderers.register(ModEntities.FLARE_BOMB.get(), Flare_Bomb_Renderer::new);
