@@ -27,6 +27,8 @@ import com.github.L_Ender.cataclysm.items.Meat_Shredder;
 import com.github.L_Ender.cataclysm.items.ModFishBucket;
 import com.github.L_Ender.cataclysm.items.ModItemTier;
 import com.github.L_Ender.cataclysm.items.ModernRemantBucket;
+import com.github.L_Ender.cataclysm.items.TeddyBearBucketItem;
+import com.github.L_Ender.cataclysm.items.Teddy_Bear_Effigy_Item;
 import com.github.L_Ender.cataclysm.items.Monstrous_Helm;
 import com.github.L_Ender.cataclysm.items.Necklace_Of_The_Desert;
 import com.github.L_Ender.cataclysm.items.Netherite_Effigy;
