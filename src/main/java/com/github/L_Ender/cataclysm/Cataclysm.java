@@ -33,6 +33,7 @@ import com.github.L_Ender.cataclysm.message.MessageMiniinventory;
 import com.github.L_Ender.cataclysm.message.MessageMusic;
 import com.github.L_Ender.cataclysm.message.MessageParryFrame;
 import com.github.L_Ender.cataclysm.message.MessageParticle;
+import com.github.L_Ender.cataclysm.message.MessageTeddyInventory;
 import com.github.L_Ender.cataclysm.message.MessageRenderRush;
 import com.github.L_Ender.cataclysm.message.MessageSwingArm;
 import com.github.L_Ender.cataclysm.message.MessageTidalTentacle;
@@ -191,6 +192,7 @@ public class Cataclysm {
         
         NETWORK_WRAPPER.registerMessage(packetsRegistered++, MessageParryFrame.class, MessageParryFrame::encode, MessageParryFrame::new, MessageParryFrame.Handler::onMessage);
         NETWORK_WRAPPER.registerMessage(packetsRegistered++, MessageMiniinventory.class, MessageMiniinventory::write, MessageMiniinventory::read, MessageMiniinventory.Handler::handle);
+        NETWORK_WRAPPER.registerMessage(packetsRegistered++, MessageTeddyInventory.class, MessageTeddyInventory::write, MessageTeddyInventory::read, MessageTeddyInventory.Handler::handle);
 
         event.enqueueWork(ModItems::initDispenser);
         event.enqueueWork(ModJigsaw::registerJigsawElements);
