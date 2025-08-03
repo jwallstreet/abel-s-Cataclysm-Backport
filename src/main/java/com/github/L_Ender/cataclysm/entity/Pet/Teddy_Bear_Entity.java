@@ -1,6 +1,7 @@
 package com.github.L_Ender.cataclysm.entity.Pet;
 
 import com.github.L_Ender.cataclysm.Cataclysm;
+import com.github.L_Ender.cataclysm.entity.Pet.AI.InternalPetStateGoal;
 import com.github.L_Ender.cataclysm.entity.Pet.AI.TameableAIFollowOwner;
 import com.github.L_Ender.cataclysm.inventory.TeddyBearMenu;
 import com.github.L_Ender.cataclysm.message.MessageTeddyInventory;
@@ -8,12 +9,16 @@ import com.github.L_Ender.cataclysm.message.MessageTeddyInventory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerListener;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.minecraft.world.entity.Mob;
@@ -34,7 +39,16 @@ import net.minecraftforge.network.PacketDistributor;
 
 public class Teddy_Bear_Entity extends InternalAnimationPet implements ContainerListener, HasCustomInventoryScreen {
     
+    private static final EntityDataAccessor<Boolean> IS_AWAKEN = SynchedEntityData.defineId(Teddy_Bear_Entity.class, EntityDataSerializers.BOOLEAN);
+    
     public SimpleContainer inventory;
+    
+    // Animation states
+    public AnimationState idleAnimationState = new AnimationState();
+    public AnimationState sleepAnimationState = new AnimationState();
+    public AnimationState chestopenAnimationState = new AnimationState();
+    public AnimationState chestloopAnimationState = new AnimationState();
+    public AnimationState chestcloseAnimationState = new AnimationState();
 
     public Teddy_Bear_Entity(EntityType<? extends Teddy_Bear_Entity> type, Level world) {
         super(type, world);
@@ -47,6 +61,22 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
         this.goalSelector.addGoal(7, new RandomStrollGoal(this, 1.0D, 60));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        
+        // Sleep state goal when not awakened
+        this.goalSelector.addGoal(1, new InternalPetStateGoal(this, 1, 1, 0, 0, 0) {
+            @Override
+            public boolean canUse() {
+                return super.canUse() && !Teddy_Bear_Entity.this.getIsAwaken();
+            }
+        });
+        
+        // Chest close state transition
+        this.goalSelector.addGoal(1, new InternalPetStateGoal(this, 5, 5, 0, 10, 0) {
+            @Override
+            public boolean canUse() {
+                return super.canUse() && Teddy_Bear_Entity.this.getAttackState() == 5;
+            }
+        });
     }
 
     protected int getInventorySize() {
@@ -94,8 +124,104 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
         // Container change handling
     }
 
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(IS_AWAKEN, false);
+    }
+
+    public void setIsAwaken(boolean isAwaken) {
+        this.entityData.set(IS_AWAKEN, isAwaken);
+        if (!isAwaken) {
+            this.setAttackState(1); // Set to sleep state
+        }
+    }
+
+    public boolean getIsAwaken() {
+        return this.entityData.get(IS_AWAKEN);
+    }
+
+    public AnimationState getAnimationState(String input) {
+        if (input == "idle") {
+            return this.idleAnimationState;
+        } else if (input == "sleep") {
+            return this.sleepAnimationState;
+        } else if (input == "chest_open") {
+            return this.chestopenAnimationState;
+        } else if (input == "chest_loop") {
+            return this.chestloopAnimationState;
+        } else if (input == "chest_close") {
+            return this.chestcloseAnimationState;
+        } else {
+            return new AnimationState();
+        }
+    }
+
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor) {
+        if (ATTACK_STATE.equals(dataAccessor)) {
+            if (this.level.isClientSide)
+                switch (this.getAttackState()) {
+                    case 0 -> this.stopAllAnimationStates();
+                    case 1 -> {
+                        this.stopAllAnimationStates();
+                        this.sleepAnimationState.startIfStopped(this.tickCount);
+                    }
+                    case 3 -> {
+                        this.stopAllAnimationStates();
+                        this.chestopenAnimationState.startIfStopped(this.tickCount);
+                    }
+                    case 4 -> {
+                        this.stopAllAnimationStates();
+                        this.chestloopAnimationState.startIfStopped(this.tickCount);
+                    }
+                    case 5 -> {
+                        this.stopAllAnimationStates();
+                        this.chestcloseAnimationState.startIfStopped(this.tickCount);
+                    }
+                }
+        }
+        super.onSyncedDataUpdated(dataAccessor);
+    }
+
+    public void stopAllAnimationStates() {
+        this.sleepAnimationState.stop();
+        this.chestopenAnimationState.stop();
+        this.chestloopAnimationState.stop();
+        this.chestcloseAnimationState.stop();
+    }
+
+    public void aiStep() {
+        super.aiStep();
+        
+        if (this.level.isClientSide()) {
+            this.animateWhen(this.idleAnimationState, this.getAttackState() == 0, this.tickCount);
+        }
+        
+        // Handle chest open -> chest loop transition
+        if(this.getAttackState() == 3){
+            if(this.attackTicks >= 9){
+                this.setAttackState(4);
+            }
+        }
+        
+        // Handle chest close -> idle transition
+        if(this.getAttackState() == 5){
+            if(this.attackTicks >= 10){
+                this.setAttackState(0);
+            }
+        }
+    }
+    
+    public void animateWhen(AnimationState state, boolean condition, int tickCount) {
+        if (condition) {
+            state.startIfStopped(tickCount);
+        } else {
+            state.stop();
+        }
+    }
+
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putBoolean("is_Awaken", this.getIsAwaken());
         ListTag listtag = new ListTag();
 
         for(int i = 0; i < this.inventory.getContainerSize(); ++i) {
@@ -113,6 +239,7 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
 
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.setIsAwaken(compound.getBoolean("is_Awaken"));
         this.createInventory();
         ListTag listtag = compound.getList("Items", 10);
 
@@ -158,6 +285,7 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
             this.gameEvent(GameEvent.EAT);
             if (!net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player)) {
                 this.tame(player);
+                this.setIsAwaken(true); // Awaken the teddy bear when tamed
                 this.level.broadcastEntityEvent(this, (byte) 7);
             } else {
                 this.level.broadcastEntityEvent(this, (byte) 6);
