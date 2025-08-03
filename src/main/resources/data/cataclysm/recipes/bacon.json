@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "category": "food",
+    "pattern": [
+        "#C"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:porkchop"
+        },
+        "C": {
+            "item": "minecraft:coal"
+        }
+    },
+    "result": {
+        "item": "cataclysm:bacon",
+        "count": 1
+    }
+}

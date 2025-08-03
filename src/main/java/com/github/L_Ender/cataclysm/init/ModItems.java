@@ -599,6 +599,9 @@ public class ModItems {
                     .alwaysEat()
                     .build())));
 
+    public static final RegistryObject<Item> BACON = ITEMS.register("bacon",
+            () -> new Item(new Item.Properties().tab(ModGroup.ITEM).food(new FoodProperties.Builder().nutrition(3).saturationMod(0.6F).build())));
+
     public static final RegistryObject<Item> AMETHYST_CRAB_SHELL = ITEMS.register("amethyst_crab_shell",
             () -> new Item(new Item.Properties().tab(ModGroup.ITEM)));
 
