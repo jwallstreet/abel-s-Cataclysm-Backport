@@ -617,6 +617,9 @@ public class ModItems {
     public static final RegistryObject<Item> TEDDY_BEAR_BUCKET = ITEMS.register("teddy_bear_bucket",
             () -> new TeddyBearBucketItem(ModEntities.TEDDY_BEAR, Fluids.EMPTY, new Item.Properties().tab(ModGroup.ITEM).stacksTo(1)));
 
+    public static final RegistryObject<Item> TEDDY_BEAR_EFFIGY = ITEMS.register("teddy_bear_effigy",
+            () -> new Teddy_Bear_Effigy_Item(new Item.Properties().tab(ModGroup.ITEM)));
+
     public static final RegistryObject<SpawnEggItem> ENDER_GOLEM_SPAWN_EGG = ITEMS.register("ender_golem_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.ENDER_GOLEM, 0x2a1a42, 0xa153fe, new Item.Properties().tab(ModGroup.ITEM)));
 
