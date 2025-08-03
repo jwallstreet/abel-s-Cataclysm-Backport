@@ -131,6 +131,9 @@ public class CMConfig {
     public static double ModernRemnantDamageMultiplier = 1D;
 
     public static double MinistrosityHealthMultiplier = 1D;
+    
+    public static double TeddyBearHealthMultiplier = 1D;
+    public static double TeddyBearMovementSpeed = 0.35D;
 
     public static double CauseKoboletontoDropItemInHandPercent = 5d;
 
@@ -377,6 +380,9 @@ public class CMConfig {
             ModernRemnantDamageMultiplier = ConfigHolder.COMMON.ModernRemnantDamageMultiplier.get();
 
             MinistrosityHealthMultiplier = ConfigHolder.COMMON.MinistrosityHealthMultiplier.get();
+            
+            TeddyBearHealthMultiplier = ConfigHolder.COMMON.TeddyBearHealthMultiplier.get();
+            TeddyBearMovementSpeed = ConfigHolder.COMMON.TeddyBearMovementSpeed.get();
 
             CauseKoboletontoDropItemInHandPercent = ConfigHolder.COMMON.CauseKoboletontoDropItemInHandPercent.get();
 

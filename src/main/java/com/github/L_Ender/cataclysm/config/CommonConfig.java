@@ -150,6 +150,9 @@ public class CommonConfig {
     public final ForgeConfigSpec.DoubleValue ModernRemnantDamageMultiplier;
 
     public final ForgeConfigSpec.DoubleValue MinistrosityHealthMultiplier;
+    
+    public final ForgeConfigSpec.DoubleValue TeddyBearHealthMultiplier;
+    public final ForgeConfigSpec.DoubleValue TeddyBearMovementSpeed;
 
     public final ForgeConfigSpec.DoubleValue CauseKoboletontoDropItemInHandPercent;
 
@@ -364,6 +367,11 @@ public class CommonConfig {
 
         builder.push("Netherite Ministrosity");
         MinistrosityHealthMultiplier = buildDouble(builder, "MinistrosityHealthMultiplier", "all", 1.0D, 0D, 1000000D, "Ministrosity's Health Multiplier");
+        builder.pop();
+        
+        builder.push("Teddy Bear");
+        TeddyBearHealthMultiplier = buildDouble(builder, "TeddyBearHealthMultiplier", "all", 1.0D, 0D, 1000000D, "Teddy Bear's Health Multiplier");
+        TeddyBearMovementSpeed = buildDouble(builder, "TeddyBearMovementSpeed", "all", 0.35D, 0D, 10D, "Teddy Bear's Movement Speed");
         builder.pop();
 
 
