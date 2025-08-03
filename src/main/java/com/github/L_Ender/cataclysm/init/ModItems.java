@@ -27,6 +27,8 @@ import com.github.L_Ender.cataclysm.items.Meat_Shredder;
 import com.github.L_Ender.cataclysm.items.ModFishBucket;
 import com.github.L_Ender.cataclysm.items.ModItemTier;
 import com.github.L_Ender.cataclysm.items.ModernRemantBucket;
+import com.github.L_Ender.cataclysm.items.TeddyBearBucketItem;
+import com.github.L_Ender.cataclysm.items.Teddy_Bear_Effigy_Item;
 import com.github.L_Ender.cataclysm.items.Monstrous_Helm;
 import com.github.L_Ender.cataclysm.items.Necklace_Of_The_Desert;
 import com.github.L_Ender.cataclysm.items.Netherite_Effigy;
@@ -613,6 +615,12 @@ public class ModItems {
     
     public static final RegistryObject<Item> NETHERITE_MINISTROSITY_BUCKET = ITEMS.register("netherite_ministrosity_bucket",
             () -> new ModernRemantBucket(ModEntities.NETHERITE_MINISTROSITY, Fluids.EMPTY, new Item.Properties().tab(ModGroup.ITEM).fireResistant()));
+
+    public static final RegistryObject<Item> TEDDY_BEAR_BUCKET = ITEMS.register("teddy_bear_bucket",
+            () -> new TeddyBearBucketItem(ModEntities.TEDDY_BEAR, Fluids.EMPTY, new Item.Properties().tab(ModGroup.ITEM).stacksTo(1)));
+
+    public static final RegistryObject<Item> TEDDY_BEAR_EFFIGY = ITEMS.register("teddy_bear_effigy",
+            () -> new Teddy_Bear_Effigy_Item(new Item.Properties().tab(ModGroup.ITEM)));
 
     public static final RegistryObject<SpawnEggItem> ENDER_GOLEM_SPAWN_EGG = ITEMS.register("ender_golem_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.ENDER_GOLEM, 0x2a1a42, 0xa153fe, new Item.Properties().tab(ModGroup.ITEM)));

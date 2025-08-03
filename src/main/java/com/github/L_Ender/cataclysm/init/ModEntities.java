@@ -46,6 +46,7 @@ import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonste
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.NewNetherite_Monstrosity.Netherite_Monstrosity_Entity;
 import com.github.L_Ender.cataclysm.entity.Pet.Modern_Remnant_Entity;
 import com.github.L_Ender.cataclysm.entity.Pet.Netherite_Ministrosity_Entity;
+import com.github.L_Ender.cataclysm.entity.Pet.Teddy_Bear_Entity;
 import com.github.L_Ender.cataclysm.entity.Pet.The_Baby_Leviathan_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Abyss_Mark_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Boltstrike_Entity;
@@ -143,6 +144,11 @@ public class ModEntities {
             .clientTrackingRange(10)
             .fireImmune()
             .build(Cataclysm.MODID + ":netherite_ministrosity"));
+
+    public static final RegistryObject<EntityType<Teddy_Bear_Entity>> TEDDY_BEAR = ENTITY_TYPE.register("teddy_bear", () -> EntityType.Builder.of(Teddy_Bear_Entity::new, MobCategory.CREATURE)
+            .sized(0.8F, 1.2F)
+            .clientTrackingRange(10)
+            .build(Cataclysm.MODID + ":teddy_bear"));
 
     public static final RegistryObject<EntityType<Lava_Bomb_Entity>> LAVA_BOMB = ENTITY_TYPE.register("lava_bomb", () -> EntityType.Builder.<Lava_Bomb_Entity>of(Lava_Bomb_Entity::new, MobCategory.MISC)
             .sized(0.5f, 0.5f)
@@ -665,6 +671,7 @@ public class ModEntities {
         SpawnPlacements.register(IGNITED_BERSERKER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkAnyLightMonsterSpawnRules);
         event.put(ENDER_GOLEM.get(), Ender_Golem_Entity.ender_golem().build());
         event.put(NETHERITE_MINISTROSITY.get(), Netherite_Ministrosity_Entity.ministrosity().build());
+        event.put(TEDDY_BEAR.get(), Teddy_Bear_Entity.teddy_bear_attributes().build());
         event.put(NETHERITE_MONSTROSITY.get(), Netherite_Monstrosity_Entity.netherite_monstrosity().build());
         event.put(OLD_NETHERITE_MONSTROSITY.get(), Old_Netherite_Monstrosity_Entity.netherite_monstrosity().build());
         event.put(NAMELESS_SORCERER.get(), Nameless_Sorcerer_Entity.nameless_sorcerer().build());
