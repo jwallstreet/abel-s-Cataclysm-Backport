@@ -1455,5 +1455,45 @@
         "pitch": 1.0
       }
     ]
+  },
+  "teddy_bear_ambient": {
+    "subtitle": "teddy_bear_ambient.sub",
+    "sounds": [
+      {
+        "name": "cataclysm:entity/teddy_bear_ambient",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "teddy_bear_hurt": {
+    "subtitle": "teddy_bear_hurt.sub",
+    "sounds": [
+      {
+        "name": "cataclysm:entity/teddy_bear_hurt",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "teddy_bear_death": {
+    "subtitle": "teddy_bear_death.sub",
+    "sounds": [
+      {
+        "name": "cataclysm:entity/teddy_bear_death",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "teddy_bear_pickup_bucket": {
+    "subtitle": "teddy_bear_pickup_bucket.sub",
+    "sounds": [
+      {
+        "name": "cataclysm:entity/teddy_bear_pickup_bucket",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
   }
 }

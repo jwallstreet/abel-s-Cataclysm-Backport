@@ -69,6 +69,18 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> MINISTROSITY_HURT = SOUNDS.register("ministrosity_hurt",
             () -> new SoundEvent(new ResourceLocation(Cataclysm.MODID,"ministrosity_hurt")));
 
+    public static final RegistryObject<SoundEvent> TEDDY_BEAR_AMBIENT = SOUNDS.register("teddy_bear_ambient",
+            () -> new SoundEvent(new ResourceLocation(Cataclysm.MODID,"teddy_bear_ambient")));
+
+    public static final RegistryObject<SoundEvent> TEDDY_BEAR_HURT = SOUNDS.register("teddy_bear_hurt",
+            () -> new SoundEvent(new ResourceLocation(Cataclysm.MODID,"teddy_bear_hurt")));
+
+    public static final RegistryObject<SoundEvent> TEDDY_BEAR_DEATH = SOUNDS.register("teddy_bear_death",
+            () -> new SoundEvent(new ResourceLocation(Cataclysm.MODID,"teddy_bear_death")));
+
+    public static final RegistryObject<SoundEvent> TEDDY_BEAR_PICKUP_BUCKET = SOUNDS.register("teddy_bear_pickup_bucket",
+            () -> new SoundEvent(new ResourceLocation(Cataclysm.MODID,"teddy_bear_pickup_bucket")));
+
     public static final RegistryObject<SoundEvent> ENDERGUARDIAN_MUSIC = SOUNDS.register("enderguardian_music",
             () -> new SoundEvent(new ResourceLocation(Cataclysm.MODID,"enderguardian_music")));
 

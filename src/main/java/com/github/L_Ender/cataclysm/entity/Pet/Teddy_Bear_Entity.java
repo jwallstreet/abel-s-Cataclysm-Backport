@@ -5,9 +5,11 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.github.L_Ender.cataclysm.Cataclysm;
+import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.Pet.AI.InternalPetStateGoal;
 import com.github.L_Ender.cataclysm.entity.Pet.AI.TameableAIFollowOwner;
 import com.github.L_Ender.cataclysm.init.ModItems;
+import com.github.L_Ender.cataclysm.init.ModSounds;
 import com.github.L_Ender.cataclysm.inventory.TeddyBearMenu;
 import com.github.L_Ender.cataclysm.message.MessageTeddyInventory;
 
@@ -27,6 +29,7 @@ import net.minecraft.world.ContainerListener;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HasCustomInventoryScreen;
@@ -66,6 +69,7 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Bucketabl
     public Teddy_Bear_Entity(EntityType<? extends Teddy_Bear_Entity> type, Level world) {
         super(type, world);
         this.createInventory();
+        setConfigattribute(this, CMConfig.TeddyBearHealthMultiplier, 1);
     }
 
     protected void registerGoals() {
@@ -362,7 +366,7 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Bucketabl
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.3D)
                 .add(Attributes.ARMOR, 2.0D)
                 .add(Attributes.FOLLOW_RANGE, 32.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.35F);
+                .add(Attributes.MOVEMENT_SPEED, CMConfig.TeddyBearMovementSpeed);
     }
 
     // Bucketable interface methods
@@ -402,7 +406,22 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Bucketabl
 
     @Override
     public SoundEvent getPickupSound() {
-        return SoundEvents.BUCKET_FILL_LAVA; // Temporary sound, will be replaced in Phase 8
+        return ModSounds.TEDDY_BEAR_PICKUP_BUCKET.get();
+    }
+    
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return this.getIsAwaken() ? ModSounds.TEDDY_BEAR_AMBIENT.get() : null;
+    }
+    
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return ModSounds.TEDDY_BEAR_HURT.get();
+    }
+    
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ModSounds.TEDDY_BEAR_DEATH.get();
     }
 
     private net.minecraftforge.common.util.LazyOptional<?> itemHandler = null;
