@@ -1,18 +1,27 @@
 package com.github.L_Ender.cataclysm.entity.Pet;
 
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
+
 import com.github.L_Ender.cataclysm.Cataclysm;
 import com.github.L_Ender.cataclysm.entity.Pet.AI.InternalPetStateGoal;
 import com.github.L_Ender.cataclysm.entity.Pet.AI.TameableAIFollowOwner;
+import com.github.L_Ender.cataclysm.init.ModItems;
 import com.github.L_Ender.cataclysm.inventory.TeddyBearMenu;
 import com.github.L_Ender.cataclysm.message.MessageTeddyInventory;
 
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerListener;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +30,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HasCustomInventoryScreen;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -28,8 +38,10 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
+import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -37,9 +49,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.network.PacketDistributor;
 
-public class Teddy_Bear_Entity extends InternalAnimationPet implements ContainerListener, HasCustomInventoryScreen {
+public class Teddy_Bear_Entity extends InternalAnimationPet implements Bucketable, ContainerListener, HasCustomInventoryScreen {
     
     private static final EntityDataAccessor<Boolean> IS_AWAKEN = SynchedEntityData.defineId(Teddy_Bear_Entity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(Teddy_Bear_Entity.class, EntityDataSerializers.BOOLEAN);
     
     public SimpleContainer inventory;
     
@@ -127,6 +140,7 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(IS_AWAKEN, false);
+        this.entityData.define(FROM_BUCKET, false);
     }
 
     public void setIsAwaken(boolean isAwaken) {
@@ -222,6 +236,7 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putBoolean("is_Awaken", this.getIsAwaken());
+        compound.putBoolean("FromBucket", this.fromBucket());
         ListTag listtag = new ListTag();
 
         for(int i = 0; i < this.inventory.getContainerSize(); ++i) {
@@ -240,6 +255,7 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setIsAwaken(compound.getBoolean("is_Awaken"));
+        this.setFromBucket(compound.getBoolean("FromBucket"));
         this.createInventory();
         ListTag listtag = compound.getList("Items", 10);
 
@@ -269,13 +285,18 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
         boolean owner = this.isTame() && isOwnedBy(player);
         InteractionResult type = super.mobInteract(player, hand);
 
-        // Open inventory for owner
+        // Handle bucket pickup for owner
         if (owner) {
-            if (!player.isShiftKeyDown()) {
-                this.openCustomInventoryScreen(player);
-                this.setCommand(2);
-                this.setOrderedToSit(true);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            Optional<InteractionResult> result = bucketMobPickup(player, hand, this);
+            if (result.isPresent()) {
+                return result.get();
+            } else {
+                if (!player.isShiftKeyDown()) {
+                    this.openCustomInventoryScreen(player);
+                    this.setCommand(2);
+                    this.setOrderedToSit(true);
+                    return InteractionResult.sidedSuccess(this.level.isClientSide);
+                }
             }
         }
 
@@ -315,6 +336,26 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
         return type;
     }
 
+    private static <T extends LivingEntity & Bucketable> Optional<InteractionResult> bucketMobPickup(Player player, InteractionHand hand, T entity) {
+        ItemStack itemstack = player.getItemInHand(hand);
+        if (itemstack.getItem() == Items.BUCKET && entity.isAlive()) {
+            entity.playSound(entity.getPickupSound(), 1.0F, 1.0F);
+            ItemStack itemstack1 = entity.getBucketItemStack();
+            entity.saveToBucketTag(itemstack1);
+            ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, player, itemstack1, false);
+            player.setItemInHand(hand, itemstack2);
+            Level level = entity.level;
+            if (!level.isClientSide) {
+                CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)player, itemstack1);
+            }
+
+            entity.discard();
+            return Optional.of(InteractionResult.sidedSuccess(level.isClientSide));
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public static AttributeSupplier.Builder teddy_bear_attributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 50.0D)
@@ -322,6 +363,46 @@ public class Teddy_Bear_Entity extends InternalAnimationPet implements Container
                 .add(Attributes.ARMOR, 2.0D)
                 .add(Attributes.FOLLOW_RANGE, 32.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.35F);
+    }
+
+    // Bucketable interface methods
+    @Override
+    public boolean fromBucket() {
+        return this.entityData.get(FROM_BUCKET);
+    }
+
+    @Override
+    public void setFromBucket(boolean fromBucket) {
+        this.entityData.set(FROM_BUCKET, fromBucket);
+    }
+
+    @Override
+    public void saveToBucketTag(@Nonnull ItemStack bucket) {
+        CompoundTag tag = new CompoundTag();
+        CompoundTag compound = bucket.getOrCreateTag();
+        this.addAdditionalSaveData(tag);
+        Bucketable.saveDefaultDataToBucketTag(this, bucket);
+        compound.put("TeddyBearData", tag);
+    }
+
+    @Override
+    public void loadFromBucketTag(CompoundTag compound) {
+        Bucketable.loadDefaultDataFromBucketTag(this, compound);
+        if (compound.contains("TeddyBearData")) {
+            this.readAdditionalSaveData(compound.getCompound("TeddyBearData"));
+        }
+    }
+
+    @Override
+    @Nonnull
+    public ItemStack getBucketItemStack() {
+        ItemStack stack = new ItemStack(ModItems.TEDDY_BEAR_BUCKET.get());
+        return stack;
+    }
+
+    @Override
+    public SoundEvent getPickupSound() {
+        return SoundEvents.BUCKET_FILL_LAVA; // Temporary sound, will be replaced in Phase 8
     }
 
     private net.minecraftforge.common.util.LazyOptional<?> itemHandler = null;
